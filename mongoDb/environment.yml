@@ -1,0 +1,16 @@
+name: bigData
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.12.4
+  - numpy=1.26.4
+  - scipy=1.13.1
+  - matplotlib=3.8.0
+  - ipykernel=6.29.5
+  - jupyterlab=4.0.6
+  - pandas=2.1.1
+  - pip=24.2
+  - pymongo=4.8.0
+  - pymongo[srv]=4.8.0
+  - python-dotenv=1.0.1
