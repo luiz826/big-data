@@ -1,0 +1,91 @@
+
+# Exercícios com Neo4j - MovieLens Dataset
+
+## 1.1 Consulta para obter o filme "Toy Story"
+**Consulta:**
+```cypher
+MATCH (m:Movie {title_en:"Toy Story"})
+RETURN m;
+```
+**Resposta:**  
+A consulta retorna o nó do filme "Toy Story" com as seguintes propriedades:
+- `movie_id`: identificador do filme.
+- `title_en`: título do filme em inglês.
+- `title_fr`: título do filme em francês (se disponível).
+- `year`: ano de lançamento.
+
+---
+
+## 1.2 Análise dos nós vizinhos de "Toy Story"
+Clique duas vezes no nó "Toy Story" para expandir seus nós vizinhos. Você verá:
+- Atores (rótulo `Actor`) conectados ao filme pelo relacionamento `ACTED_IN`.
+- Diretor(es) (rótulo `Director`) conectados ao filme pelo relacionamento `DIRECTED`.
+- Gêneros (rótulo `Genre`) conectados ao filme pelo relacionamento `HAS_GENRE`.
+- Usuários (rótulo `User`) conectados ao filme pelo relacionamento `RATED`, que inclui a propriedade `rate` (nota).
+
+---
+
+## 1.3 Consultas diversas
+
+A) **Gêneros dos filmes no banco de dados:**
+```cypher
+MATCH (g:Genre)
+RETURN g.name;
+```
+
+B) **Número de filmes no banco de dados:**
+```cypher
+MATCH (m:Movie)
+RETURN count(m);
+```
+
+C) **Títulos dos filmes lançados em 2015:**
+```cypher
+MATCH (m:Movie) 
+WHERE m.year = 2015
+RETURN m.title_en;
+```
+
+D) **Número de diretores por filme (ordem decrescente):**
+```cypher
+MATCH (m:Movie)<-[:DIRECTED]-(d:Director)
+RETURN m.title_en, count(d) AS num_directors
+ORDER BY num_directors DESC;
+```
+
+E) **Diretores que também atuaram nos filmes que dirigiram:**
+```cypher
+MATCH (d:Director)-[:DIRECTED]->(m:Movie)<-[:ACTED_IN]-(d)
+RETURN d.name, m.title_en;
+```
+
+F) **Gêneros dos filmes em que Tom Hanks atuou:**
+```cypher
+MATCH (a:Actor {name: "Tom Hanks"})-[:ACTED_IN]->(m:Movie)-[:HAS_GENRE]->(g:Genre)
+RETURN g.name;
+```
+
+G) **Título e avaliação dos filmes avaliados pelo usuário 3 (ordem decrescente):**
+```cypher
+MATCH (u:User {user_id: 3})-[r:RATED]->(m:Movie)
+RETURN m.title_en, r.rate
+ORDER BY r.rate DESC;
+```
+
+---
+
+## 1.4 Consulta para obter os cinco filmes com a melhor nota média (avaliados por pelo menos 100 usuários)
+
+**Consulta:**
+```cypher
+MATCH (m:Movie)<-[r:RATED]-(u:User)
+WITH m, count(u) AS num_ratings, avg(r.rate) AS avg_rating
+WHERE num_ratings >= 100
+RETURN m.title_en, avg_rating
+ORDER BY avg_rating DESC
+LIMIT 5;
+```
+
+**Explicação:**  
+A consulta conta o número de avaliações e calcula a média das notas para cada filme. Depois, ela filtra os filmes que foram avaliados 
+por pelo menos 100 usuários e retorna os cinco com a maior média de avaliação.
